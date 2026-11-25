@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interlibrary Loan Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <a class="brand" href="#" id="brandLink">📚 Interlibrary Loan Hub</a>
+    <button class="btn btn-outline" id="mgmtBtn">Management Login</button>
+  </header>
+
+  <main>
+
+    <!-- ============ FRONT PAGE ============ -->
+    <section id="homeView" class="view active">
+      <div class="hero">
+        <h1>Can't find the book you need?</h1>
+        <p>Our library may not own every title, but we can borrow it for you from our partner libraries.
+           Check availability or place a request in minutes.</p>
+        <button class="btn btn-hero" id="borrowBtn">📖 Borrowing Request</button>
+        <p class="hero-sub">Check if a book is available &bull; Request it &bull; Track delivery</p>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMER PORTAL ============ -->
+    <section id="customerView" class="view">
+      <div class="container">
+        <button class="btn btn-link" data-go="home">← Back to home</button>
+        <h2>Borrowing Services</h2>
+
+        <div class="tabs" id="custTabs">
+          <button class="tab active" data-tab="availability">Check Availability</button>
+          <button class="tab" data-tab="request">Request a Book</button>
+          <button class="tab" data-tab="track">Track My Request</button>
+        </div>
+
+        <!-- Availability -->
+        <div class="tabpane active" id="tab-availability">
+          <div class="card">
+            <label for="searchInput">Search by title, author or ISBN</label>
+            <div class="row">
+              <input id="searchInput" type="text" placeholder="e.g. Clean Code">
+              <button class="btn btn-primary" id="searchBtn">Search</button>
+            </div>
+          </div>
+          <div id="searchResults"></div>
+        </div>
+
+        <!-- Request form -->
+        <div class="tabpane" id="tab-request">
+          <form class="card" id="requestForm">
+            <h3>Book details</h3>
+            <div class="grid">
+              <div><label>Book title *</label><input name="title" required></div>
+              <div><label>Author *</label><input name="author" required></div>
+              <div><label>ISBN (optional)</label><input name="isbn"></div>
+              <div>
+                <label>Preferred source library</label>
+                <select name="preferredLibrary" id="preferredLibrary"></select>
+              </div>
+            </div>
+
+            <h3>Your details</h3>
+            <div class="grid">
+              <div><label>Full name *</label><input name="name" required></div>
+              <div><label>Member / ID number *</label><input name="memberId" required></div>
+              <div><label>Email *</label><input name="email" type="email" required></div>
+              <div><label>Phone *</label><input name="phone" type="tel" required pattern="[0-9+ \-]{7,15}" title="Enter a valid phone number"></div>
+            </div>
+            <label>Notes (optional)</label>
+            <textarea name="notes" rows="3" placeholder="Edition, urgency, anything the librarian should know"></textarea>
+
+            <button class="btn btn-primary" type="submit">Submit Request</button>
+          </form>
+          <div id="requestSuccess"></div>
+        </div>
+
+        <!-- Tracking -->
+        <div class="tabpane" id="tab-track">
+          <form class="card" id="trackForm">
+            <div class="grid">
+              <div><label>Request ID *</label><input name="reqId" placeholder="ILL-1001" required></div>
+              <div><label>Email used in request *</label><input name="email" type="email" required></div>
+            </div>
+            <button class="btn btn-primary" type="submit">Track</button>
+          </form>
+          <div id="trackResult"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MANAGEMENT DASHBOARD ============ -->
+    <section id="adminView" class="view">
+      <div class="container wide">
+        <div class="admin-head">
+          <h2>Management Dashboard</h2>
+          <div>
+            <button class="btn btn-link" data-go="home">← Home</button>
+            <button class="btn btn-danger" id="logoutBtn">Logout</button>
+          </div>
+        </div>
+
+        <div class="stats" id="stats"></div>
+
+        <div class="tabs" id="adminTabs">
+          <button class="tab active" data-tab="a-requests">Requests</button>
+          <button class="tab" data-tab="a-catalog">Catalog</button>
+          <button class="tab" data-tab="a-libs">Partner Libraries</button>
+        </div>
+
+        <!-- Requests -->
+        <div class="tabpane active" id="tab-a-requests">
+          <div class="card row toolbar">
+            <input id="reqFilterText" placeholder="Search ID, book or requester…">
+            <select id="reqFilterStatus">
+              <option value="">All approval statuses</option>
+              <option>Pending</option><option>Approved</option><option>Rejected</option>
+            </select>
+            <select id="reqFilterReturn">
+              <option value="">All return statuses</option>
+              <option>Not Returned</option><option>Returned</option><option>Overdue</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Book</th><th>Requester</th><th>Source Library</th>
+                  <th>Approval</th><th>Shipment</th><th>Due Date</th><th>Return</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="reqTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Catalog -->
+        <div class="tabpane" id="tab-a-catalog">
+          <form class="card" id="catalogForm">
+            <h3>Add a book to the catalog</h3>
+            <div class="grid">
+              <div><label>Title *</label><input name="title" required></div>
+              <div><label>Author *</label><input name="author" required></div>
+              <div><label>ISBN</label><input name="isbn"></div>
+              <div>
+                <label>Available in our library?</label>
+                <select name="owned"><option value="yes">Yes</option><option value="no">No</option></select>
+              </div>
+            </div>
+            <label>Held by partner libraries (comma separated names)</label>
+            <input name="partners" placeholder="City Central Library, University Library">
+            <button class="btn btn-primary" type="submit">Add Book</button>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Title</th><th>Author</th><th>ISBN</th><th>Our library</th><th>Partner libraries</th><th></th></tr></thead>
+              <tbody id="catalogTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Libraries -->
+        <div class="tabpane" id="tab-a-libs">
+          <form class="card row" id="libForm">
+            <input name="lib" placeholder="New partner library name" required>
+            <button class="btn btn-primary" type="submit">Add Library</button>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Partner library</th><th></th></tr></thead>
+              <tbody id="libTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ LOGIN MODAL ============ -->
+  <dialog id="loginDialog">
+    <form id="loginForm" method="dialog">
+      <h3>Management Login</h3>
+      <label>Username</label>
+      <input id="loginUser" autocomplete="username" required>
+      <label>Password</label>
+      <input id="loginPass" type="password" autocomplete="current-password" required>
+      <p class="error" id="loginError"></p>
+      <div class="row end">
+        <button type="button" class="btn btn-outline" id="loginCancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </div>
+      <p class="hint">Demo credentials: <b>admin</b> / <b>admin123</b></p>
+    </form>
+  </dialog>
+
+  <!-- ============ MANAGE REQUEST MODAL ============ -->
+  <dialog id="manageDialog">
+    <form id="manageForm" method="dialog">
+      <h3 id="manageTitle">Manage request</h3>
+      <div id="manageInfo" class="info"></div>
+
+      <div class="grid">
+        <div>
+          <label>Approval</label>
+          <select id="mApproval"><option>Pending</option><option>Approved</option><option>Rejected</option></select>
+        </div>
+        <div>
+          <label>Source library</label>
+          <select id="mSource"></select>
+        </div>
+        <div>
+          <label>Shipment status</label>
+          <select id="mShipment">
+            <option>Not Shipped</option><option>Shipped</option><option>In Transit</option><option>Delivered</option>
+          </select>
+        </div>
+        <div>
+          <label>Due date</label>
+          <input id="mDue" type="date">
+        </div>
+        <div>
+          <label>Return status</label>
+          <select id="mReturn"><option>Not Returned</option><option>Returned</option></select>
+        </div>
+      </div>
+      <p class="hint" id="manageHint"></p>
+      <div class="row end">
+        <button type="button" class="btn btn-danger" id="mDelete">Delete</button>
+        <button type="button" class="btn btn-outline" id="mCancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="script.js"></script>
+</body>
+</html>
